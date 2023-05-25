@@ -1,0 +1,9 @@
+{
+  id: '@id()',
+  name: '@cname()',
+  advance: '@cname()',
+  lag: '@cname()',
+  complete: '@cname()',
+  total: '@cname()',
+  percentage: '@cname()',
+}
