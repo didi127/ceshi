@@ -7,28 +7,36 @@
       <button @click=search>搜索</button>
     </div>
     <el-table :data="tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)" border stripe style="width: 100%" height="430">
-    <el-table-column prop="id" label="序号" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="name" label="人员" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="advance" label="推进中" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="lag" label="进度滞后" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="complete" label="已完成" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="total" label="总数" sortable :sort-method="customSort"></el-table-column>
-    <el-table-column prop="percentage" label="完成百分比" sortable :sort-method="customSort">
-      <!-- <template slot-scope="scope">
-        {{ scope.row.percentage }}
-      </template> -->
-    </el-table-column>
-  </el-table>
+      <el-table-column prop="id" label="序号" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="name" label="人员" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="advance" label="推进中" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="lag" label="进度滞后" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="complete" label="已完成" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="total" label="总数" sortable :sort-method="customSort"></el-table-column>
+      <el-table-column prop="percentage" label="完成百分比" sortable :sort-method="customSort"></el-table-column>
+    </el-table>
     <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="currentPage"
-        :page-size="PageSize"
-        layout="prev, pager, next"
-        :total="total"
-        background
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page.sync="currentPage"
+      :page-size="PageSize"
+      layout="prev, pager, next"
+      :total="total"
+      background
       >
-      </el-pagination>
+    </el-pagination>
+    <p class="xiala">
+      显示第1到第{{ PageSize }}条记录, 总共{{ total }}条记录每页显示
+      <el-select v-model="pageSize" placeholder="请选择" size="mini" @change="handlePageSizeChange">
+        <el-option
+          v-for="item in options"
+          :key="item.value"
+          :label="item.value"
+          :value="item.value">
+        </el-option>
+      </el-select>
+      条记录
+    </p>
   </div>
 </template>
 
@@ -46,11 +54,21 @@ export default {
       originalData: [],  //备份数据
       currentPage: 1, //当前页
       total: 100,
-      PageSize: 20,
+      PageSize: '',
+      options: [
+        {
+          value: 20,
+        },
+        {
+          value: 30,
+        },
+      ]
     };
   },
   mounted() {
     this.fetchData();
+    this.pageSize = this.options[0].value; // 设置初始的 pageSize
+    this.PageSize = this.pageSize;
     
   },
   methods: {
@@ -95,15 +113,18 @@ export default {
         this.fetchData();
       }
     },
-
+    handlePageSizeChange() {
+      this.currentPage = 1;
+      this.PageSize = this.pageSize;
+    },
   },
   computed: {
     filteredData() {
       // 根据当前页和每页显示数量对数据进行分页
-      const startIndex = (this.currentPage - 1) * 20;
-    const endIndex = startIndex + 20;
-    const dataToDisplay = this.searchKeyword ? this.originalData.filter(item => item.name.includes(this.searchKeyword)) : this.originalData;
-    return dataToDisplay.slice(startIndex, endIndex);
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      const dataToDisplay = this.searchKeyword ? this.originalData.filter(item => item.name.includes(this.searchKeyword)) : this.originalData;
+      return dataToDisplay.slice(startIndex, endIndex);
     },
   }
 }
@@ -138,7 +159,17 @@ button {
   height: 35px;
   width: 50px;  
   color: #fff;
+}
 
-  
+.el-pagination {
+  float: left;
+}
+
+.xiala {
+  float: right;
+  color: #9f9999;
+}
+.el-input__inner {
+  width: 60px;
 }
 </style>
